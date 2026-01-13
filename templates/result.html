@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result | Employee Attrition Analysis</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #2c3e50;
+            --border-radius: 10px;
+            --box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            background-color: var(--primary-color) !important;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Result Card */
+        .result-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 3rem;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+        }
+        
+        /* Result Icon */
+        .result-icon {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            line-height: 120px;
+            border-radius: 50%;
+            text-align: center;
+            margin: 0 auto 2rem;
+        }
+        
+        .result-icon.attrition {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+            border: 3px solid var(--danger-color);
+        }
+        
+        .result-icon.no-attrition {
+            background-color: rgba(39, 174, 96, 0.1);
+            color: var(--success-color);
+            border: 3px solid var(--success-color);
+        }
+        
+        /* Result Header */
+        .result-header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 2.2rem;
+        }
+        
+        .result-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Prediction Result */
+        .prediction-result {
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: var(--border-radius);
+            position: relative;
+        }
+        
+        .attrition-result {
+            background-color: rgba(231, 76, 60, 0.05);
+            border: 2px solid rgba(231, 76, 60, 0.2);
+        }
+        
+        .no-attrition-result {
+            background-color: rgba(39, 174, 96, 0.05);
+            border: 2px solid rgba(39, 174, 96, 0.2);
+        }
+        
+        .prediction-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .attrition-text {
+            color: var(--danger-color);
+        }
+        
+        .no-attrition-text {
+            color: var(--success-color);
+        }
+        
+        .prediction-subtext {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.9rem 2.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            min-width: 200px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(41, 128, 185, 0.3);
+            color: white;
+        }
+        
+        .btn-primary i {
+            margin-right: 10px;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            font-weight: 600;
+            padding: 0.9rem 2.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            min-width: 200px;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+            transform: translateY(-3px);
+            color: var(--secondary-color);
+        }
+        
+        /* Insights Section */
+        .insights-section {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 3rem;
+            text-align: left;
+        }
+        
+        .insights-header {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .insights-header i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .insights-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .insights-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .insights-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .insights-list i {
+            margin-right: 12px;
+            margin-top: 4px;
+            color: var(--secondary-color);
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            margin-top: auto;
+        }
+        
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer a:hover {
+            color: #a3d5ff;
+            text-decoration: underline;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .result-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .result-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .prediction-text {
+                font-size: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary, .btn-outline {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .result-icon {
+                width: 100px;
+                height: 100px;
+                line-height: 100px;
+                font-size: 3.5rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 0 1rem;
+                margin: 2rem auto;
+            }
+            
+            .result-card {
+                padding: 1.5rem;
+            }
+            
+            .result-header h1 {
+                font-size: 1.6rem;
+            }
+        }
+        
+        /* Animation for result */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .navbar, .footer, .action-buttons, .insights-section {
+                display: none;
+            }
+            
+            .result-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> Employee Attrition Prediction
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="result-card">
+            <!-- Result Icon (Conditional) -->
+            {% if 'attrition' in prediction|lower or 'yes' in prediction|lower %}
+            <div class="result-icon attrition">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            {% else %}
+            <div class="result-icon no-attrition">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            {% endif %}
+            
+            <!-- Result Header -->
+            <div class="result-header">
+                <h1>Prediction Result</h1>
+                <p>Based on the employee details provided, here is the attrition prediction from our analytics model.</p>
+            </div>
+            
+            <!-- Prediction Result -->
+            <div class="prediction-result {% if 'attrition' in prediction|lower or 'yes' in prediction|lower %}attrition-result{% else %}no-attrition-result{% endif %}">
+                <div class="prediction-text {% if 'attrition' in prediction|lower or 'yes' in prediction|lower %}attrition-text{% else %}no-attrition-text{% endif %}">
+                    {{ prediction }}
+                </div>
+                <div class="prediction-subtext">
+                    {% if 'attrition' in prediction|lower or 'yes' in prediction|lower %}
+                    High risk of employee departure
+                    {% else %}
+                    Low risk of employee departure
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/" class="btn-primary">
+                    <i class="fas fa-redo"></i> Predict Again
+                </a>
+                <a href="#" class="btn-outline" id="printResult">
+                    <i class="fas fa-print"></i> Print Result
+                </a>
+            </div>
+            
+            <!-- Insights Section -->
+            <div class="insights-section">
+                <div class="insights-header">
+                    <i class="fas fa-lightbulb"></i> Recommended Actions
+                </div>
+                <ul class="insights-list">
+                    {% if 'attrition' in prediction|lower or 'yes' in prediction|lower %}
+                    <li>
+                        <i class="fas fa-handshake"></i>
+                        <div>
+                            <strong>Schedule retention meeting:</strong> Arrange a one-on-one with the employee to discuss concerns and career goals.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <strong>Review compensation:</strong> Analyze if the employee's compensation is competitive with market rates.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-graduation-cap"></i>
+                        <div>
+                            <strong>Career development plan:</strong> Create a clear career progression path with training opportunities.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-balance-scale"></i>
+                        <div>
+                            <strong>Workload assessment:</strong> Evaluate current workload and work-life balance considerations.
+                        </div>
+                    </li>
+                    {% else %}
+                    <li>
+                        <i class="fas fa-trophy"></i>
+                        <div>
+                            <strong>Continue current strategy:</strong> The employee shows good engagement and satisfaction levels.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <strong>Monitor regularly:</strong> Continue with regular check-ins to maintain positive engagement.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-graduation-cap"></i>
+                        <div>
+                            <strong>Growth opportunities:</strong> Consider additional development opportunities to retain top talent.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fas fa-award"></i>
+                        <div>
+                            <strong>Recognition:</strong> Acknowledge contributions to reinforce positive behavior and satisfaction.
+                        </div>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <b>Developed By <a href="#">Projectworlds</a></b>
+            <p class="mt-2 mb-0" style="font-size: 0.9rem; opacity: 0.8;">
+                Advanced HR Analytics & Employee Retention Prediction System
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Print functionality
+            document.getElementById('printResult').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.print();
+            });
+            
+            // Add animation to prediction result
+            const predictionResult = document.querySelector('.prediction-result');
+            predictionResult.style.animation = 'fadeInUp 0.8s ease-out 0.3s both';
+            
+            // Add confetti effect for positive result (no attrition)
+            {% if 'attrition' not in prediction|lower and 'yes' not in prediction|lower %}
+            // Create subtle celebration effect
+            setTimeout(() => {
+                const resultIcon = document.querySelector('.result-icon');
+                resultIcon.style.transform = 'scale(1.1)';
+                resultIcon.style.transition = 'transform 0.5s ease';
+                
+                setTimeout(() => {
+                    resultIcon.style.transform = 'scale(1)';
+                }, 500);
+            }, 1000);
+            {% endif %}
+            
+            // Add page load animation
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // Add hover effect to insights
+            const insightItems = document.querySelectorAll('.insights-list li');
+            insightItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+                    this.style.paddingLeft = '15px';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                    this.style.paddingLeft = '0';
+                });
+            });
+            
+            // Add dynamic title based on result
+            const pageTitle = document.querySelector('title');
+            const predictionText = document.querySelector('.prediction-text').textContent.toLowerCase();
+            
+            if (predictionText.includes('attrition') || predictionText.includes('yes')) {
+                pageTitle.textContent = "⚠️ High Attrition Risk | Prediction Result";
+            } else {
+                pageTitle.textContent = "✅ Low Attrition Risk | Prediction Result";
+            }
+        });
+    </script>
+</body>
+</html>

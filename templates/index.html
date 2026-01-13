@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attrition Prediction | HR Analytics</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #f8f9fa;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* Navbar Styling */
+        .navbar {
+            background-color: var(--primary-color) !important;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* Card Styling */
+        .prediction-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: none;
+        }
+        
+        .header-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .header-section h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header-section p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Form Styling */
+        .form-section {
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-label i {
+            margin-right: 8px;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+        
+        /* Radio Button Groups */
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+        
+        .radio-option input[type="radio"] {
+            margin-right: 0.5rem;
+            accent-color: var(--secondary-color);
+        }
+        
+        .radio-option label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+        
+        /* Responsive Radio Groups */
+        @media (max-width: 768px) {
+            .radio-group {
+                gap: 0.75rem;
+            }
+            
+            .radio-option {
+                margin-right: 0.5rem;
+            }
+        }
+        
+        /* Submit Button */
+        .submit-btn {
+            background-color: var(--secondary-color);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.9rem 2.5rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            display: block;
+            margin: 2.5rem auto 0;
+            width: 100%;
+            max-width: 300px;
+            font-size: 1.1rem;
+        }
+        
+        .submit-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(41, 128, 185, 0.3);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Form Sections Grid */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer a:hover {
+            color: #a3d5ff;
+            text-decoration: underline;
+        }
+        
+        /* Input Group Styling */
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-right: none;
+            color: #7f8c8d;
+        }
+        
+        /* Range Indicators */
+        .range-indicator {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-top: 0.25rem;
+        }
+        
+        /* Section Headers */
+        .section-header {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-header i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 576px) {
+            .prediction-card {
+                padding: 1.5rem;
+            }
+            
+            .header-section h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-label {
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Animation for form focus */
+        .form-group:focus-within .form-label {
+            color: var(--secondary-color);
+        }
+        
+        /* Custom styling for number inputs */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line"></i> Employee Attrition Prediction
+            </a>
+            <div class="navbar-text text-light d-none d-md-block">
+                HR Analytics Dashboard
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="prediction-card">
+            <div class="header-section">
+                <h1>Employee Attrition Prediction</h1>
+                <p>Fill in the employee details below to predict attrition risk using our advanced HR analytics model.</p>
+            </div>
+            
+            <!-- Form -->
+            <form action="{{ url_for('predict')}}" method="POST" autocomplete="on">
+                <!-- Demographics Section -->
+                <div class="section-header">
+                    <i class="fas fa-user"></i> Demographics
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="Age">
+                            <i class="fas fa-birthday-cake"></i> Age
+                        </label>
+                        <input type="number" class="form-control" id="Age" name="Age" 
+                               placeholder="Enter age (18-80)" required min="18" max="80">
+                        <div class="range-indicator">Range: 18 - 80 years</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-venus-mars"></i> Gender
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="Male" name="Gender" value="Male" required>
+                                <label for="Male">Male</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="Female" name="Gender" value="Female">
+                                <label for="Female">Female</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-heart"></i> Marital Status
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="Married" name="MaritalStatus" value="Married" required>
+                                <label for="Married">Married</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="Single" name="MaritalStatus" value="Single">
+                                <label for="Single">Single</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="Divorced" name="MaritalStatus" value="Divorced">
+                                <label for="Divorced">Divorced</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Company Details Section -->
+                <div class="section-header">
+                    <i class="fas fa-building"></i> Company Details
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="Department">
+                            <i class="fas fa-sitemap"></i> Department
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="R&D" name="Department" value="Research & Development" required>
+                                <label for="R&D">Research & Development</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="HR" name="Department" value="Human_Resources">
+                                <label for="HR">Human Resources</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="Sales" name="Department" value="Sales">
+                                <label for="Sales">Sales</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="JobRole">
+                            <i class="fas fa-briefcase"></i> Job Role
+                        </label>
+                        <div class="radio-group">
+                            <div class="form-row">
+                                <div class="col-12 col-md-6">
+                                    <div class="radio-option">
+                                        <input type="radio" id="SalesExecutive" name="JobRole" value="Sales Executive" required>
+                                        <label for="SalesExecutive">Sales Executive</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="ResearchScientist" name="JobRole" value="Research Scientist">
+                                        <label for="ResearchScientist">Research Scientist</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="LabTechnician" name="JobRole" value="Laboratory Technician">
+                                        <label for="LabTechnician">Laboratory Technician</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="ManufacturingDirector" name="JobRole" value="Manufacturing Director">
+                                        <label for="ManufacturingDirector">Manufacturing Director</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="HealthcareRep" name="JobRole" value="Healthcare_Representative">
+                                        <label for="HealthcareRep">Healthcare Representative</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="radio-option">
+                                        <input type="radio" id="Manager" name="JobRole" value="Manager">
+                                        <label for="Manager">Manager</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="SalesRep" name="JobRole" value="Sales_Representative">
+                                        <label for="SalesRep">Sales Representative</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="ResearchDirector" name="JobRole" value="Research Director">
+                                        <label for="ResearchDirector">Research Director</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="HumanResources" name="JobRole" value="Human Resources">
+                                        <label for="HumanResources">Human Resources</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="BusinessTravel">
+                            <i class="fas fa-plane"></i> Business Travel
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="Rarely" name="BusinessTravel" value="Rarely" required>
+                                <label for="Rarely">Rarely</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="Frequently" name="BusinessTravel" value="Frequently">
+                                <label for="Frequently">Frequently</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="NoTravel" name="BusinessTravel" value="NoTravel">
+                                <label for="NoTravel">No Travel</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Employment Details Section -->
+                <div class="section-header">
+                    <i class="fas fa-chart-line"></i> Employment Details
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="JobLevel">
+                            <i class="fas fa-layer-group"></i> Job Level
+                        </label>
+                        <input type="number" class="form-control" id="JobLevel" name="JobLevel" 
+                               placeholder="Enter job level (1-5)" required min="1" max="5">
+                        <div class="range-indicator">Range: 1 (Low) - 5 (High)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="YearsAtCompany">
+                            <i class="far fa-calendar-alt"></i> Years at Company
+                        </label>
+                        <input type="number" class="form-control" id="YearsAtCompany" name="YearsAtCompany" 
+                               placeholder="Enter years (0-40)" required min="0" max="40">
+                        <div class="range-indicator">Range: 0 - 40 years</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="TotalWorkingYears">
+                            <i class="fas fa-history"></i> Total Working Years
+                        </label>
+                        <input type="number" class="form-control" id="TotalWorkingYears" name="TotalWorkingYears" 
+                               placeholder="Enter years (0-40)" required min="0" max="40">
+                        <div class="range-indicator">Range: 0 - 40 years</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="NumCompaniesWorked">
+                            <i class="fas fa-building"></i> Companies Worked
+                        </label>
+                        <input type="number" class="form-control" id="NumCompaniesWorked" name="NumCompaniesWorked" 
+                               placeholder="Enter number (0-9)" required min="0" max="9">
+                        <div class="range-indicator">Range: 0 - 9 companies</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="YearsInCurrentRole">
+                            <i class="fas fa-user-tie"></i> Years in Current Role
+                        </label>
+                        <input type="number" class="form-control" id="YearsInCurrentRole" name="YearsInCurrentRole" 
+                               placeholder="Enter years (0-18)" required min="0" max="18">
+                        <div class="range-indicator">Range: 0 - 18 years</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="YearsSinceLastPromotion">
+                            <i class="fas fa-trophy"></i> Years Since Last Promotion
+                        </label>
+                        <input type="number" class="form-control" id="YearsSinceLastPromotion" name="YearsSinceLastPromotion" 
+                               placeholder="Enter years (0-15)" required min="0" max="15">
+                        <div class="range-indicator">Range: 0 - 15 years</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="YearsWithCurrManager">
+                            <i class="fas fa-users"></i> Years with Current Manager
+                        </label>
+                        <input type="number" class="form-control" id="YearsWithCurrManager" name="YearsWithCurrManager" 
+                               placeholder="Enter years (0-17)" required min="0" max="17">
+                        <div class="range-indicator">Range: 0 - 17 years</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="OverTime">
+                            <i class="fas fa-clock"></i> Overtime
+                        </label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="OvertimeYes" name="OverTime" value="Yes" required>
+                                <label for="OvertimeYes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="OvertimeNo" name="OverTime" value="No">
+                                <label for="OvertimeNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="TrainingTimesLastYear">
+                            <i class="fas fa-graduation-cap"></i> Training Times Last Year
+                        </label>
+                        <input type="number" class="form-control" id="TrainingTimesLastYear" name="TrainingTimesLastYear" 
+                               placeholder="Enter number (0-6)" required min="0" max="6">
+                        <div class="range-indicator">Range: 0 - 6 times</div>
+                    </div>
+                </div>
+                
+                <!-- Compensation & Benefits Section -->
+                <div class="section-header">
+                    <i class="fas fa-money-bill-wave"></i> Compensation & Benefits
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="MonthlyIncome">
+                            <i class="fas fa-dollar-sign"></i> Monthly Income
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="MonthlyIncome" name="MonthlyIncome" 
+                                   placeholder="Enter income (1000-20000)" required min="1000" max="20000">
+                        </div>
+                        <div class="range-indicator">Range: $1,000 - $20,000</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="DailyRate">
+                            <i class="fas fa-calendar-day"></i> Daily Rate
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="DailyRate" name="DailyRate" 
+                                   placeholder="Enter daily rate (100-1600)" required min="100" max="1600">
+                        </div>
+                        <div class="range-indicator">Range: $100 - $1,600</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="HourlyRate">
+                            <i class="fas fa-clock"></i> Hourly Rate
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="HourlyRate" name="HourlyRate" 
+                                   placeholder="Enter hourly rate (30-100)" required min="30" max="100">
+                        </div>
+                        <div class="range-indicator">Range: $30 - $100</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="MonthlyRate">
+                            <i class="fas fa-calendar-alt"></i> Monthly Rate
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="MonthlyRate" name="MonthlyRate" 
+                                   placeholder="Enter monthly rate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="PercentSalaryHike">
+                            <i class="fas fa-chart-bar"></i> Percent Salary Hike
+                        </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="PercentSalaryHike" name="PercentSalaryHike" 
+                                   placeholder="Enter percentage (10-25)" required min="10" max="25">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <div class="range-indicator">Range: 10% - 25%</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="StockOptionLevel">
+                            <i class="fas fa-chart-pie"></i> Stock Option Level
+                        </label>
+                        <input type="number" class="form-control" id="StockOptionLevel" name="StockOptionLevel" 
+                               placeholder="Enter level (0-3)" required min="0" max="3">
+                        <div class="range-indicator">Range: 0 (None) - 3 (High)</div>
+                    </div>
+                </div>
+                
+                <!-- Education & Skills Section -->
+                <div class="section-header">
+                    <i class="fas fa-graduation-cap"></i> Education & Skills
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="Education">
+                            <i class="fas fa-university"></i> Education Level
+                        </label>
+                        <input type="number" class="form-control" id="Education" name="Education" 
+                               placeholder="Enter level (1-5)" required min="1" max="5">
+                        <div class="range-indicator">Range: 1 (Below College) - 5 (Doctor)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="EducationField">
+                            <i class="fas fa-book-open"></i> Education Field
+                        </label>
+                        <div class="radio-group">
+                            <div class="form-row">
+                                <div class="col-12 col-md-6">
+                                    <div class="radio-option">
+                                        <input type="radio" id="LifeSciences" name="EducationField" value="Life_Sciences" required>
+                                        <label for="LifeSciences">Life Sciences</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="Medical" name="EducationField" value="Medical">
+                                        <label for="Medical">Medical</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="Marketing" name="EducationField" value="Marketing">
+                                        <label for="Marketing">Marketing</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="radio-option">
+                                        <input type="radio" id="TechnicalDegree" name="EducationField" value="Technical_Degree">
+                                        <label for="TechnicalDegree">Technical Degree</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="EduHR" name="EducationField" value="Human_Resources">
+                                        <label for="EduHR">Human Resources</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="Other" name="EducationField" value="Other">
+                                        <label for="Other">Other</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="DistanceFromHome">
+                            <i class="fas fa-home"></i> Distance from Home (miles)
+                        </label>
+                        <input type="number" class="form-control" id="DistanceFromHome" name="DistanceFromHome" 
+                               placeholder="Enter distance (1-29)" required min="1" max="29">
+                        <div class="range-indicator">Range: 1 - 29 miles</div>
+                    </div>
+                </div>
+                
+                <!-- Job Satisfaction Section -->
+                <div class="section-header">
+                    <i class="fas fa-smile"></i> Job Satisfaction & Performance
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="EnvironmentSatisfaction">
+                            <i class="fas fa-leaf"></i> Environment Satisfaction
+                        </label>
+                        <input type="number" class="form-control" id="EnvironmentSatisfaction" name="EnvironmentSatisfaction" 
+                               placeholder="Enter rating (1-4)" required min="1" max="4">
+                        <div class="range-indicator">Range: 1 (Low) - 4 (High)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="JobSatisfaction">
+                            <i class="fas fa-briefcase"></i> Job Satisfaction
+                        </label>
+                        <input type="number" class="form-control" id="JobSatisfaction" name="JobSatisfaction" 
+                               placeholder="Enter rating (1-4)" required min="1" max="4">
+                        <div class="range-indicator">Range: 1 (Low) - 4 (High)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="RelationshipSatisfaction">
+                            <i class="fas fa-handshake"></i> Relationship Satisfaction
+                        </label>
+                        <input type="number" class="form-control" id="RelationshipSatisfaction" name="RelationshipSatisfaction" 
+                               placeholder="Enter rating (1-4)" required min="1" max="4">
+                        <div class="range-indicator">Range: 1 (Low) - 4 (High)</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="JobInvolvement">
+                            <i class="fas fa-tasks"></i> Job Involvement
+                        </label>
+                        <input type="number" class="form-control" id="JobInvolvement" name="JobInvolvement" 
+                               placeholder="Enter rating (1-4)" required min="1" max="4">
+                        <div class="range-indicator">Range: 1 (Low) - 4 (High)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="PerformanceRating">
+                            <i class="fas fa-star"></i> Performance Rating
+                        </label>
+                        <input type="number" class="form-control" id="PerformanceRating" name="PerformanceRating" 
+                               placeholder="Enter rating (1-4)" required min="1" max="4">
+                        <div class="range-indicator">Range: 1 (Low) - 4 (High)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="WorkLifeBalance">
+                            <i class="fas fa-balance-scale"></i> Work-Life Balance
+                        </label>
+                        <input type="number" class="form-control" id="WorkLifeBalance" name="WorkLifeBalance" 
+                               placeholder="Enter rating (1-4)" required min="1" max="4">
+                        <div class="range-indicator">Range: 1 (Poor) - 4 (Excellent)</div>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-calculator"></i> Predict Attrition Risk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <b>Developed By <a href="#">Marjan Projects</a></b>
+            <p class="mt-2 mb-0" style="font-size: 0.9rem; opacity: 0.8;">
+                Advanced HR Analytics & Employee Retention Prediction System
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Optional JavaScript for enhanced UX -->
+    <script>
+        // Add focus effects to form controls
+        document.addEventListener('DOMContentLoaded', function() {
+            const formControls = document.querySelectorAll('.form-control, .form-select');
+            
+            formControls.forEach(control => {
+                // Add focus class to parent
+                control.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                control.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+            
+            // Add input validation styling
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const min = parseInt(this.min);
+                    const max = parseInt(this.max);
+                    const value = parseInt(this.value);
+                    
+                    if (value < min || value > max) {
+                        this.style.borderColor = '#e74c3c';
+                    } else {
+                        this.style.borderColor = '#ddd';
+                    }
+                });
+            });
+            
+            // Improve radio button selection feedback
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Remove any previous selection styling
+                    document.querySelectorAll('.radio-option').forEach(option => {
+                        option.style.backgroundColor = 'transparent';
+                    });
+                    
+                    // Highlight the selected option
+                    if (this.checked) {
+                        const parentLabel = this.closest('.radio-option');
+                        parentLabel.style.backgroundColor = '#f0f8ff';
+                        parentLabel.style.padding = '5px 10px';
+                        parentLabel.style.borderRadius = '4px';
+                        parentLabel.style.transition = 'all 0.3s ease';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
